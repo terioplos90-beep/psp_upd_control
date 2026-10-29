@@ -704,7 +704,7 @@ void init(){
 	LOG("main thread started\n");
 }
 
-int OnModuleStart(SceModule2 *mod) {
+int OnModuleStart(SceModule*mod) {
     init(0);
 
 	if (!previous)
