@@ -567,10 +567,61 @@ static void read_config(char *disc_id, int disc_id_valid){
 
 	sceIoClose(fd);
 }
+#define UDP_X_PORT 5557
 
+static int udp_x_thread(SceSize args, void *argp) {
+    int sock;
+    struct sockaddr_in addr;
+    char buf[64];
+
+    sock = sceNetInetSocket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0) {
+        LOG("UDP X: socket gagal\n");
+        return 0;
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = sceNetInetHtons(UDP_X_PORT);
+    addr.sin_addr.s_addr = sceNetInetHtonl(INADDR_ANY);
+
+    if (sceNetInetBind(sock, (struct sockaddr *)&addr,
+                       sizeof(addr)) < 0) {
+        LOG("UDP X: bind gagal\n");
+        sceNetInetClose(sock);
+        return 0;
+    }
+
+    LOG("UDP X: mendengarkan port 5557\n");
+
+    while (1) {
+        int n = sceNetInetRecvfrom(
+            sock, buf, sizeof(buf) - 1, 0, NULL, NULL);
+
+        if (n > 0) {
+            buf[n] = '\0';
+
+            if (strcmp(buf, "X=1") == 0) {
+                udp_x_pressed = 1;
+            } else if (strcmp(buf, "X=0") == 0) {
+                udp_x_pressed = 0;
+            }
+        }
+    }
+
+    return 0;
+}
 int main_thread(SceSize args, void *argp){
 	LOG("main thread begins\n");
+SceUID udp_thid = sceKernelCreateThread(
+    "udp_x_thread", udp_x_thread, 0x18, 4 * 1024, 0, NULL);
 
+if (udp_thid >= 0) {
+    sceKernelStartThread(udp_thid, 0, NULL);
+    LOG("UDP X thread started\n");
+} else {
+    LOG("UDP X thread failed\n");
+}
 	sceKernelDelayThread(1000 * 1000 * 5);
 	LOG("forcing analog sampling mode");
 	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
