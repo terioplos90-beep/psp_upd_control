@@ -22,7 +22,8 @@
 #include <pspctrl.h>
 #include <pspiofilemgr.h>
 #include <pspthreadman.h>
-
+#include <pspnet.h>
+#include <pspnet_inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,7 +61,7 @@ static unsigned char inner_deadzone = 10;
 static u32 window = 8; // frame
 static int algo = 0;
 static u32 min_percent = 0;
-
+static volatile int udp_x_pressed = 0;
 // is there a flush..? or the non async version always syncs?
 #define DEBUG 1
 #if DEBUG
@@ -330,11 +331,20 @@ static void apply_analog_to_digital(SceCtrlData *pad_data, int count, int negati
 	LOG_VERBOSE("processing %d buffers in %s mode\n", count, negative? "negative" : "positive");
 
 	int i;
-	for(i = 0;i < count; i++){
-		int buttons = negative ? ~pad_data[i].Buttons : pad_data[i].Buttons;
-		int rx = pad_data[i].Rsrv[0];
-		int ry = pad_data[i].Rsrv[1];
-		u32 timestamp = pad_data->TimeStamp;
+    for (i = 0; i < count; i++) {
+    int buttons = negative ? ~pad_data[i].Buttons : pad_data[i].Buttons;
+
+    if (udp_x_pressed) {
+    if (negative) {
+        buttons &= ~PSP_CTRL_CROSS;
+    } else {
+        buttons |= PSP_CTRL_CROSS;
+    }
+	}
+
+    int rx = pad_data[i].Rsrv[0];
+    int ry = pad_data[i].Rsrv[1];
+    u32 timestamp = pad_data[i].TimeStamp;
 
 		if(rx > 128){
 			int val = rx - 128;
