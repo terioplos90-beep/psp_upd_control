@@ -24,6 +24,7 @@
 #include <pspthreadman.h>
 #include <pspnet.h>
 #include <pspnet_inet.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
