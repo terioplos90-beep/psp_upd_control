@@ -580,11 +580,11 @@ static int udp_x_thread(SceSize args, void *argp) {
         LOG("UDP X: socket gagal\n");
         return 0;
     }
-
-    memset(&addr, 0, sizeof(addr));
+	
+        memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
-    addr.sin_port = sceNetInetHtons(UDP_X_PORT);
-    addr.sin_addr.s_addr = sceNetInetHtonl(INADDR_ANY);
+    addr.sin_port = htons(UDP_X_PORT);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (sceNetInetBind(sock, (struct sockaddr *)&addr,
                        sizeof(addr)) < 0) {
