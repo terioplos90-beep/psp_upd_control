@@ -1,0 +1,29 @@
+
+name: Build PSP UDP Control
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: pspdev/pspdev:latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build PRX
+        run: make clean && make
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: psp-udp-control-prx
+          path: |
+            *.prx
+            *.PRX
+          if-no-files-found: error
