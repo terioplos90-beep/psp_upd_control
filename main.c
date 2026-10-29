@@ -705,7 +705,7 @@ void init(){
 }
 
 int OnModuleStart(SceModule*mod) {
-    init(0);
+    init();
 
 	if (!previous)
 	return 0;
