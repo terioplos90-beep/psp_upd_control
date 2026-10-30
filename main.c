@@ -677,7 +677,7 @@ if (udp_thid >= 0) {
 		HIJACK_SYSCALL_STUB(sceCtrlPeekBufferNegative_addr, sceCtrlPeekBufferNegativePatched, sceCtrlPeekBufferNegativeOrig);
 
 		sceKernelDcacheWritebackAll();
-		sceKernelIcacheClearAll();
+		sceKernelIcacheInvalidateAll();
 
 		if(is_emulator){
 			sceKernelDelayThread(1000 * 1000 * 5);
