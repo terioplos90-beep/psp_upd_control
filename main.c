@@ -727,3 +727,6 @@ int module_start(SceSize args, void *argp) {
   }
   return 0;
 }
+void _exit(int status) {
+    sceKernelExitDeleteThread(status);
+}
